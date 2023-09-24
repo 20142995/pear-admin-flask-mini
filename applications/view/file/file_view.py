@@ -3,7 +3,7 @@ from flask import Blueprint
 from applications.view import index_bp
 from common.utils.rights import view_logging_required, permission_required
 
-file_bp = Blueprint('files', __name__, url_prefix='/files')
+file_bp = Blueprint('files', __name__)
 
 @file_bp.get('/file')
 @view_logging_required

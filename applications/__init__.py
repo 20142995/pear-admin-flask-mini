@@ -11,13 +11,15 @@ from extensions import init_plugs
 
 api_bp: Blueprint = Blueprint('api', __name__, url_prefix='/api/v1')
 
-from .rights import register_rights_api
-from .system import register_sys_api
-from .users import register_users_api
+
+from .system import register_login_api,register_rights_api,register_users_api
+from .file import register_file_api
+
 
 register_rights_api(api_bp)
 register_users_api(api_bp)
-register_sys_api(api_bp)
+register_login_api(api_bp)
+register_file_api(api_bp)
 
 
 def init_api(app: Flask) -> None:
