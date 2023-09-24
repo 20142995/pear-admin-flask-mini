@@ -7,7 +7,7 @@ role_bp = Blueprint('role', __name__, url_prefix='/admin/role')
 
 
 
-# 角色而管理
+# 角色管理
 @role_bp.get('/')
 @view_logging_required
 @permission_required("admin:role:main")
@@ -30,7 +30,6 @@ def power(role_id):
 def role_editor(role_id):
     role = RoleModel.query.filter_by(id=role_id).first()
     return render_template('admin/roles/roles_edit.html', role=role)
-
 
 @role_bp.get('/add')
 @view_logging_required

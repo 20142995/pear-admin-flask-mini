@@ -22,7 +22,7 @@ def users_add_view():
     roles = RoleModel.query.all()
     return render_template('admin/users/users_add.html', roles=roles)
 
-
+# 用户编辑
 @index_bp.get('/users/<user_id>')
 @view_logging_required
 @permission_required("admin:user:edit")
