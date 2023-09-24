@@ -119,7 +119,7 @@ flask init-db
 + 项目启动
 
 ```bash
-flask run
+flask run --reload
 ```
 
 ## Git 贡献提交规范
