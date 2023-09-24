@@ -6,6 +6,7 @@ from flask_pydantic import validate
 from pydantic import BaseModel, Field
 
 from common.utils.http import success_api, fail_api
+from common.utils.rights import permission_required
 from extensions import db
 from models import DepartmentModel, UserModel
 
@@ -22,7 +23,7 @@ class DeptModel(BaseModel):
 
 
 class DepartmentsApi(MethodView):
-
+    @permission_required("admin:dept:main")
     def get(self, _id):
         if _id:
             dept = DepartmentModel.query.filter_by(id=_id).first()
@@ -61,6 +62,7 @@ class DepartmentsApi(MethodView):
         return jsonify(res)
 
     @validate()
+    @permission_required("admin:dept:add")
     def post(self, body: DeptModel):
         dept = DepartmentModel(
             parent_id=body.parent_id,
@@ -78,6 +80,7 @@ class DepartmentsApi(MethodView):
         return success_api(message="成功")
 
     @validate()
+    @permission_required("admin:dept:edit")
     def put(self, _id, body: DeptModel):
         data = {
             "dept_name": body.dept_name,
@@ -93,7 +96,7 @@ class DepartmentsApi(MethodView):
             return fail_api(message="更新失败")
         db.session.commit()
         return success_api(message="更新成功")
-
+    @permission_required("admin:dept:remove")
     def delete(self, _id):
         ret = DepartmentModel.query.filter_by(id=_id).delete()
         UserModel.query.filter_by(dept_id=_id).update({"dept_id": None})
@@ -104,6 +107,7 @@ class DepartmentsApi(MethodView):
 
 
 class DeptEnableAPI(MethodView):
+    @permission_required("admin:dept:edit")
     def put(self, _id):
         d = DepartmentModel.query.get(_id)
         if d:

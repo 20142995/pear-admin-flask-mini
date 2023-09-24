@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import desc
 
 from common.utils.http import fail_api, success_api, table_api
+from common.utils.rights import permission_required
 from extensions import db
 from models import LogModel
 from models import UserModel, RoleModel, DepartmentModel
@@ -89,6 +90,7 @@ class UserApi(MethodView):
     """修改用户数据"""
 
     @validate()
+    @permission_required("admin:user:main")
     def get(self, _id, query: QueryModel):
 
         filters = []
@@ -123,6 +125,7 @@ class UserApi(MethodView):
         )
 
     @validate()
+    @permission_required("admin:user:add")
     def post(self, body: PersonModel):
         """新建单个用户"""
 
@@ -146,7 +149,7 @@ class UserApi(MethodView):
         db.session.commit()
 
         return success_api(message="增加成功", code=0)
-
+    @permission_required("admin:user:remove")
     def delete(self, _id):
         # 删除用户
         res = delete_by_id(_id)
@@ -164,6 +167,7 @@ class PersonModel2(BaseModel):
 
 
 @validate()
+@permission_required("admin:user:edit")
 def user_role_resource(_id, body: PersonModel2):
     role_ids = body.role_ids.split(',')
 
@@ -177,9 +181,29 @@ def user_role_resource(_id, body: PersonModel2):
 
     return success_api(message="更新成功")
 
+@permission_required("admin:user:edit")
+def user_enable_resource():
+    user_id = int(request.json.get('userId', 0))  # int
+    operate = int(request.json.get('operate', 0))  # int
+    if operate not in [0, 1]:
+        return {'status': 'error', 'message': '请求有误'}
+
+    if operate == 1:
+        user = UserModel.query.get(user_id)
+        user.enable = operate
+        message = success_api(message="启动成功")
+    else:
+        user = UserModel.query.filter_by(id=user_id).update({"enable": operate})
+        message = success_api(message="禁用成功")
+    if user:
+        db.session.commit()
+    else:
+        return fail_api(message="出错啦")
+    return message
+
 
 def user_info(_id, action):
-    if action == 'info':
+    if action == 'info' and current_user.id == _id:
         real_name = request.json.get('realName', '')
         username = request.json.get('username', '')
         remark = request.json.get('remark', '')
@@ -193,25 +217,7 @@ def user_info(_id, action):
         if not ret:
             return fail_api(message="出错啦")
         return success_api(message="更新成功")
-    elif action == 'status':
-        user_id = int(request.json.get('userId', 0))  # int
-        operate = int(request.json.get('operate', 0))  # int
-        if operate not in [0, 1]:
-            return {'status': 'error', 'message': '请求有误'}
-
-        if operate == 1:
-            user = UserModel.query.get(_id)
-            user.enable = operate
-            message = success_api(message="启动成功")
-        else:
-            user = UserModel.query.filter_by(id=user_id).update({"enable": operate})
-            message = success_api(message="禁用成功")
-        if user:
-            db.session.commit()
-        else:
-            return fail_api(message="出错啦")
-        return message
-    elif action == 'avatar':
+    elif action == 'avatar' and current_user.id == _id:
         url = request.json.get("avatar").get("src")
         ret = UserModel.query.get(_id)
         ret.avatar = url
@@ -219,7 +225,7 @@ def user_info(_id, action):
         if not ret:
             return fail_api(message="出错啦")
         return success_api(message="修改成功")
-    elif action == 'password':
+    elif action == 'password' and current_user.id == _id:
         oldPassword = request.json.get('oldPassword', '')
         newPassword = request.json.get('newPassword', '')
         confirmPassword = request.json.get('confirmPassword', '')

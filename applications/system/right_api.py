@@ -9,6 +9,7 @@ from flask_pydantic import validate
 from pydantic import BaseModel, Field
 
 from common.utils.http import success_api, fail_api
+from common.utils.rights import permission_required
 from extensions import db
 from models import RightModel, RoleModel
 
@@ -183,7 +184,7 @@ class RightsApi(MethodView):
             "data": power_data
         }
         return res
-
+    @permission_required("admin:role:remove")
     def delete(self):
         ids = request.form.getlist('ids[]')
         for id in ids:
@@ -199,6 +200,7 @@ class RightsApi(MethodView):
 
 class PowerApi(MethodView):
     @validate()
+    @permission_required("admin:dept:add")
     def post(self, body: PowerModel):
         power = RightModel(
             icon=body.icon,
@@ -219,7 +221,7 @@ class PowerApi(MethodView):
             return fail_api(message='数据提交失败')
 
         return success_api(message="成功")
-
+    @permission_required("admin:power:remove")
     def delete(self, _id):
         # 删除权限（目前没有判断父节点自动删除子节点）
         power = RightModel.query.filter_by(id=_id).first()
@@ -239,6 +241,7 @@ class PowerApi(MethodView):
             return fail_api(message="删除失败")
 
     @validate()
+    @permission_required("admin:power:edit")
     def put(self, _id, body: PowerModel):
         data = {
             "icon": body.icon,
@@ -257,7 +260,7 @@ class PowerApi(MethodView):
             return fail_api(message="更新权限失败")
         return success_api(message="更新权限成功")
 
-
+@permission_required("admin:power:edit")
 def right_power_enable_resource(_id, action):
     power = RightModel.query.get(_id)
     if power:

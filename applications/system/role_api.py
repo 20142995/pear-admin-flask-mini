@@ -2,6 +2,7 @@ from flask import request
 from flask.views import MethodView
 
 from common.utils.http import table_api, success_api, fail_api
+from common.utils.rights import permission_required
 from extensions import db
 from models import RightModel, RoleModel
 
@@ -20,7 +21,7 @@ def role_deletes():
 
 
 class RoleRoleApi(MethodView):
-
+    @permission_required("admin:role:main")
     def get(self, _id):
         if not _id:
             page = request.args.get('page', default=1, type=int)
@@ -48,7 +49,7 @@ class RoleRoleApi(MethodView):
                                } for item in paginate.items],
                     'total': paginate.total}
                 , code=0)
-
+    @permission_required("admin:role:add")
     def post(self):
         # TODO 添加校验
         details = request.json.get('details', '')
@@ -69,6 +70,7 @@ class RoleRoleApi(MethodView):
         return success_api(message="成功")
 
     # 更新角色
+    @permission_required("admin:role:edit")
     def put(self, _id):
         # TODO 添加校验
         role_code = request.json.get('roleCode', 0)
@@ -91,7 +93,7 @@ class RoleRoleApi(MethodView):
             return fail_api(message="更新角色失败")
         return success_api(message="更新角色成功")
 
-
+@permission_required("admin:role:edit")
 def role_enable_resource(_id):
     """启用用户"""
     ret = RoleModel.query.get(_id)
@@ -105,7 +107,7 @@ def role_enable_resource(_id):
 
 
 class RolePowerApi(MethodView):
-
+    @permission_required("admin:role:main")
     def get(self, _id):
         # 获取角色权限
         role = RoleModel.query.filter_by(id=_id).first()
@@ -135,6 +137,7 @@ class RolePowerApi(MethodView):
         }
 
     # 保存角色权限
+    @permission_required("admin:role:power")
     def put(self, _id):
         power_ids = request.json.get('powerIds', '')
 
@@ -149,6 +152,7 @@ class RolePowerApi(MethodView):
         return success_api(message="授权成功")
 
     # 角色删除
+    @permission_required("admin:role:remove")
     def delete(self, _id):
         role = RoleModel.query.filter_by(id=_id).first()
         # 删除该角色的权限和用户

@@ -4,11 +4,12 @@ from sqlalchemy import desc
 
 from common.utils.http import fail_api, success_api, table_api
 from common.utils.upload import upload_one, delete_photo_by_id
+from common.utils.rights import permission_required
 from models import PhotoModel
 
 
 class FilePhotoAPI(MethodView):
-
+    @permission_required("admin:file:main")
     def get(self, photo_id):
         if photo_id is None:
             page = request.args.get('page', type=int, default=1)
@@ -51,7 +52,7 @@ class FilePhotoAPI(MethodView):
                 },
                 code=0
             )
-
+    @permission_required("admin:file:add")
     def post(self):
         if 'file' in request.files:
             photo = request.files['file']
@@ -66,7 +67,7 @@ class FilePhotoAPI(MethodView):
             }
             return jsonify(res)
         return fail_api()
-
+    @permission_required("admin:file:remove")
     def delete(self, photo_id):
         res = delete_photo_by_id(photo_id)
         if res:

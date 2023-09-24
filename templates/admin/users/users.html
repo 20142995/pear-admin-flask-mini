@@ -205,7 +205,7 @@
       }
       let loading = layer.load();
       $.ajax({
-        url: '/api/v1/users/user/' + this.value + '/status',
+        url: '/api/v1/users/user/status',
         data: JSON.stringify({operate: operate, userId: this.value}),
         dataType: 'json',
         contentType: 'application/json',

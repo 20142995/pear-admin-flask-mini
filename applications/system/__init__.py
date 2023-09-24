@@ -7,12 +7,15 @@ from .right_api import (
 )
 from .role_api import RoleRoleApi, RolePowerApi, role_deletes, role_enable_resource
 from .login_api import LoginAPI
-from .user_api import UserApi, user_role_resource, user_info
+from .user_api import UserApi, user_role_resource, user_info,user_enable_resource
 
 def register_login_api(api_bp):
     register_api(LoginAPI, 'login_api', '/passport/login', pk='_id', app=api_bp)
 
 def register_users_api(api_bp):
+    api_bp.add_url_rule('/users/user/status',
+                        view_func=user_enable_resource,
+                        methods=['PUT'])
     api_bp.add_url_rule('/users/user/<int:_id>/<action>',
                         view_func=user_info,
                         methods=['PUT'])
