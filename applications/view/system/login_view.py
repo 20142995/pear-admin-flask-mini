@@ -4,10 +4,10 @@ from flask_login import login_required, logout_user, current_user
 from common.gen_captcha import get_captcha_image
 from common.utils.http import success_api
 
+
+from .index_view import index_bp
+
 # 获取验证码
-from applications.view import index_bp
-
-
 @index_bp.get('/passport/getCaptcha')
 def get_captcha():
     resp, code = get_captcha_image()

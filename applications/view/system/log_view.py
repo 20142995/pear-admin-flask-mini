@@ -8,6 +8,7 @@ from models import LogModel
 logs_bp = Blueprint('logs', __name__, url_prefix='/logs')
 
 
+
 @logs_bp.get('/')
 @permission_required("admin:log:main")
 def index():

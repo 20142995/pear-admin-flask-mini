@@ -3,8 +3,8 @@ from flask import Blueprint, render_template
 from common.utils.rights import permission_required, view_logging_required
 
 from models import RoleModel
-
 role_bp = Blueprint('role', __name__, url_prefix='/admin/role')
+
 
 
 # 角色而管理

@@ -4,7 +4,7 @@ from sqlalchemy import desc
 
 from common.utils.rights import permission_required, view_logging_required
 from models import LogModel, RoleModel, UserModel
-from . import index_bp
+from .index_view import index_bp
 
 
 # 用户增加

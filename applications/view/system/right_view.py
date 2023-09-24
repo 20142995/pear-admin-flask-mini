@@ -2,7 +2,7 @@ from flask import render_template
 
 from common.utils.rights import permission_required, view_logging_required
 from models import RightModel
-from applications.view import index_bp
+from .index_view import index_bp
 
 
 @index_bp.get('/rights/')
